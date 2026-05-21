@@ -311,7 +311,6 @@ async function run() {
             .send({ success: false, message: "Email is required" });
         }
 
-        // 🎯 MongoDB $elemMatch অপারেটর দিয়ে comments অ্যারের ভেতর ইমেইল খোঁজা হচ্ছে
         const query = {
           comments: {
             $elemMatch: { userEmail: email },
@@ -332,7 +331,7 @@ async function run() {
       }
     });
 
-    // 👤 ৫. ইউজারের প্রোফাইল ডাটা আপডেট করা (Profile Management)
+    // 5. Updating user profile data (Profile Management)
     app.patch("/update-profile", async (req, res) => {
       try {
         const { email, name, image } = req.body;
