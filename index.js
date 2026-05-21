@@ -167,7 +167,7 @@ async function run() {
       }
     });
 
-    // 6. Endpoint for deleting comments (DELETE)
+    // 6. Endpoint for deleting comments
     app.delete("/ideas/:id/comments/:commentId", async (req, res) => {
       try {
         const { id, commentId } = req.params;
@@ -179,7 +179,7 @@ async function run() {
         const filter = { _id: new ObjectId(id) };
         const updateDoc = {
           $pull: {
-            comments: { _id: new ObjectId(commentId) }, // Removes specific comments from an array.
+            comments: { _id: new ObjectId(commentId) },
           },
         };
 
