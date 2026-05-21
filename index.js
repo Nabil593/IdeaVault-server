@@ -19,6 +19,32 @@ const client = new MongoClient(uri, {
   },
 });
 
+const jwt = require("jsonwebtoken");
+
+// JWT
+const verifyJWT = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res
+      .status(401)
+      .send({ message: "Unauthorized access: Missing token" });
+  }
+
+  const token = authHeader.split(" ")[1];
+
+  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+    if (err) {
+      return res
+        .status(403)
+        .send({ message: "Forbidden access: Invalid token" });
+    }
+
+    req.user = decoded;
+    next();
+  });
+};
+
 async function run() {
   try {
     await client.connect();
@@ -82,7 +108,7 @@ async function run() {
     });
 
     // 3. Endpoint for creating new ideas
-    app.post("/ideas", async (req, res) => {
+    app.post("/ideas", verifyJWT, async (req, res) => {
       try {
         const ideasData = req.body;
 
@@ -97,7 +123,7 @@ async function run() {
     });
 
     // 4.Endpoint for adding comments
-    app.post("/ideas/:id/comments", async (req, res) => {
+    app.post("/ideas/:id/comments", verifyJWT, async (req, res) => {
       try {
         const id = req.params.id;
         const commentData = req.body;
@@ -133,7 +159,7 @@ async function run() {
     });
 
     // 5. Comment editing endpoint
-    app.patch("/ideas/:id/comments/:commentId", async (req, res) => {
+    app.patch("/ideas/:id/comments/:commentId", verifyJWT, async (req, res) => {
       try {
         const { id, commentId } = req.params;
         const { text } = req.body;
@@ -168,35 +194,40 @@ async function run() {
     });
 
     // 6. Endpoint for deleting comments
-    app.delete("/ideas/:id/comments/:commentId", async (req, res) => {
-      try {
-        const { id, commentId } = req.params;
+    app.delete(
+      "/ideas/:id/comments/:commentId",
+      verifyJWT,
+      async (req, res) => {
+        try {
+          const { id, commentId } = req.params;
 
-        if (!ObjectId.isValid(id) || !ObjectId.isValid(commentId)) {
-          return res.status(400).send({ message: "Invalid ID format" });
+          if (!ObjectId.isValid(id) || !ObjectId.isValid(commentId)) {
+            return res.status(400).send({ message: "Invalid ID format" });
+          }
+
+          const filter = { _id: new ObjectId(id) };
+          const updateDoc = {
+            $pull: {
+              comments: { _id: new ObjectId(commentId) },
+            },
+          };
+
+          const result = await ideaVualtCollection.updateOne(filter, updateDoc);
+          if (result.modifiedCount > 0) {
+            res.send({
+              success: true,
+              message: "Comment deleted successfully",
+            });
+          } else {
+            res
+              .status(400)
+              .send({ success: false, message: "Comment not found" });
+          }
+        } catch (error) {
+          res.status(500).send({ message: error.message });
         }
-
-        const filter = { _id: new ObjectId(id) };
-        const updateDoc = {
-          $pull: {
-            comments: { _id: new ObjectId(commentId) },
-          },
-        };
-
-        const result = await ideaVualtCollection.updateOne(filter, updateDoc);
-        if (result.modifiedCount > 0) {
-          res.send({ success: true, message: "Comment deleted successfully" });
-        } else {
-          res
-            .status(400)
-            .send({ success: false, message: "Comment not found" });
-        }
-      } catch (error) {
-        res.status(500).send({ message: error.message });
-      }
-    });
-
-
+      },
+    );
 
     // Endpoints to Get Trending Ideas
     app.get("/trending-ideas", async (req, res) => {
@@ -209,8 +240,6 @@ async function run() {
         res.status(500).send({ message: "Internal Server Error" });
       }
     });
-
-
 
     // 1. Fetch ideas only from logged in users (My Ideas)
     app.get("/my-ideas", async (req, res) => {
