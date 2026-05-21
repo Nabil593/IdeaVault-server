@@ -21,7 +21,6 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    // Connect the client to the server (optional starting in v4.7)
     await client.connect();
 
     const db = client.db("IdeaVault");
@@ -33,7 +32,7 @@ async function run() {
         const { search, category, startDate, endDate } = req.query;
         let query = {};
 
-        // Search Filter (Will search for partial matches of Title)
+        // Search Filter
         if (search) {
           query.title = { $regex: search, $options: "i" };
         }
@@ -51,7 +50,6 @@ async function run() {
           if (endDate && endDate.trim() !== "")
             query.createdAt.$lte = new Date(endDate);
 
-          // Object cleanup if neither the start or end date is valid
           if (Object.keys(query.createdAt).length === 0) {
             delete query.createdAt;
           }
@@ -199,10 +197,20 @@ async function run() {
       }
     });
 
+    // 🎯 ৬টি ট্রেন্ডিং আইডিয়া গেট করার এন্ডপয়েন্ট
+    app.get("/trending-ideas", async (req, res) => {
+      try {
+        // ১. মঙ্গোডিবি কালেকশন থেকে ডাটা খোঁজা
+        // ২. .limit(6) দিয়ে আমরা ডাটাবেজকে বলছি "ভাই, মাত্র ৬টার বেশি ডাটা দিও না"
+        const result = await ideaVualtCollection.find().limit(6).toArray();
 
-
-
-    
+        // ৩. ফ্রন্টএন্ডে সাকসেসফুলি ডাটা পাঠিয়ে দেওয়া
+        res.send(result);
+      } catch (error) {
+        console.error("Error fetching trending ideas:", error);
+        res.status(500).send({ message: "Internal Server Error" });
+      }
+    });
 
     // # My Idea Page
 
@@ -297,10 +305,6 @@ async function run() {
       }
     });
 
-
-
-
-
     // 💬 ৪. ইউজারের কমেন্ট করা আইডিয়াগুলো নিয়ে আসা (My Interactions)
     app.get("/my-interactions", async (req, res) => {
       try {
@@ -332,10 +336,6 @@ async function run() {
       }
     });
 
-
-
-
-
     // 👤 ৫. ইউজারের প্রোফাইল ডাটা আপডেট করা (Profile Management)
     app.patch("/update-profile", async (req, res) => {
       try {
@@ -356,7 +356,10 @@ async function run() {
           },
         };
 
-        const result = await client.db("ideaVaultAuth").collection("user").updateOne(filter, updateDoc);
+        const result = await client
+          .db("ideaVaultAuth")
+          .collection("user")
+          .updateOne(filter, updateDoc);
 
         if (result.modifiedCount > 0 || result.matchedCount > 0) {
           res.send({
@@ -376,9 +379,6 @@ async function run() {
       }
     });
 
-
-
-
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
@@ -391,7 +391,7 @@ async function run() {
 }
 run().catch(console.dir);
 
-// All API
+// Check API
 app.get("/", (req, res) => {
   res.send("Hello Server!");
 });
