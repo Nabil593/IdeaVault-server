@@ -301,7 +301,7 @@ async function run() {
       }
     });
 
-    // 💬 ৪. ইউজারের কমেন্ট করা আইডিয়াগুলো নিয়ে আসা (My Interactions)
+    // 4. Bringing ideas commented by users
     app.get("/my-interactions", async (req, res) => {
       try {
         const email = req.query.email;
