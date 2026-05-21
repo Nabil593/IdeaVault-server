@@ -198,8 +198,6 @@ async function run() {
 
 
 
-
-
     // Endpoints to Get Trending Ideas
     app.get("/trending-ideas", async (req, res) => {
       try {
@@ -212,9 +210,9 @@ async function run() {
       }
     });
 
-    // # My Idea Page
 
-    // 💡 ১. শুধুমাত্র লগইনড ইউজারের আইডিয়া ফেচ করা (My Ideas)
+
+    // 1. Fetch ideas only from logged in users (My Ideas)
     app.get("/my-ideas", async (req, res) => {
       try {
         const email = req.query.email;
