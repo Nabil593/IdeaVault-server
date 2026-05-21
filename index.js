@@ -85,7 +85,7 @@ async function run() {
     app.post("/ideas", async (req, res) => {
       try {
         const ideasData = req.body;
-        
+
         if (!ideasData.createdAt) {
           ideasData.createdAt = new Date();
         }
@@ -96,7 +96,7 @@ async function run() {
       }
     });
 
-    // 4.Endpoint for adding comments (POST)
+    // 4.Endpoint for adding comments
     app.post("/ideas/:id/comments", async (req, res) => {
       try {
         const id = req.params.id;
@@ -106,7 +106,6 @@ async function run() {
           return res.status(400).send({ message: "Invalid ID format" });
         }
 
-        // Generating a real ID for comments to facilitate editing/deletion
         const newComment = {
           _id: new ObjectId(),
           userName: commentData.userName,
@@ -117,7 +116,7 @@ async function run() {
 
         const filter = { _id: new ObjectId(id) };
         const updateDoc = {
-          $push: { comments: newComment }, // Will push new comments to the array
+          $push: { comments: newComment },
         };
 
         const result = await ideaVualtCollection.updateOne(filter, updateDoc);
