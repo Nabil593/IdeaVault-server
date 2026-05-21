@@ -132,7 +132,7 @@ async function run() {
       }
     });
 
-    // 5. Comment editing endpoint (PATCH)
+    // 5. Comment editing endpoint
     app.patch("/ideas/:id/comments/:commentId", async (req, res) => {
       try {
         const { id, commentId } = req.params;
@@ -148,7 +148,7 @@ async function run() {
         };
         const updateDoc = {
           $set: {
-            "comments.$.text": text, // Will change the text of a specific comment
+            "comments.$.text": text,
             "comments.$.timestamp": new Date().toISOString(),
           },
         };
