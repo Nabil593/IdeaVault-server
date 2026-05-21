@@ -196,14 +196,15 @@ async function run() {
       }
     });
 
-    // 🎯 ৬টি ট্রেন্ডিং আইডিয়া গেট করার এন্ডপয়েন্ট
+
+
+
+
+    // Endpoints to Get Trending Ideas
     app.get("/trending-ideas", async (req, res) => {
       try {
-        // ১. মঙ্গোডিবি কালেকশন থেকে ডাটা খোঁজা
-        // ২. .limit(6) দিয়ে আমরা ডাটাবেজকে বলছি "ভাই, মাত্র ৬টার বেশি ডাটা দিও না"
         const result = await ideaVualtCollection.find().limit(6).toArray();
 
-        // ৩. ফ্রন্টএন্ডে সাকসেসফুলি ডাটা পাঠিয়ে দেওয়া
         res.send(result);
       } catch (error) {
         console.error("Error fetching trending ideas:", error);
