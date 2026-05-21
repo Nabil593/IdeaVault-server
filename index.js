@@ -239,7 +239,7 @@ async function run() {
       }
     });
 
-    // ✏️ ২. নির্দিষ্টアレンジメント আপডেট করা (Update Idea Blueprint)
+    // 2. Update a specific arrangement
     app.patch("/ideas/:id", async (req, res) => {
       try {
         const id = req.params.id;
@@ -258,7 +258,6 @@ async function run() {
           },
         };
 
-        // 🎯 ideasCollection বদলে ideaVualtCollection করা হলো
         const result = await ideaVualtCollection.updateOne(filter, updateDoc);
 
         if (result.modifiedCount > 0) {
