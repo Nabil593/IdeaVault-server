@@ -277,13 +277,12 @@ async function run() {
       }
     });
 
-    // ৩. নির্দিষ্ট আইডিয়া স্থায়ীভাবে ডিলিট করা (Purge Concept) FIXED
+    // 3. Permanently delete specific ideas
     app.delete("/ideas/:id", async (req, res) => {
       try {
         const id = req.params.id;
         const query = { _id: new ObjectId(id) };
 
-        // 🎯 ideasCollection বদলে ideaVualtCollection করা হলো
         const result = await ideaVualtCollection.deleteOne(query);
 
         if (result.deletedCount > 0) {
