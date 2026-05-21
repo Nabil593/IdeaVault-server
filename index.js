@@ -85,7 +85,7 @@ async function run() {
     app.post("/ideas", async (req, res) => {
       try {
         const ideasData = req.body;
-        // It is safe to set the server date from the backend at create time for the date filter to work properly.
+        
         if (!ideasData.createdAt) {
           ideasData.createdAt = new Date();
         }
