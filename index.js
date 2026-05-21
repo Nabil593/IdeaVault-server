@@ -62,7 +62,7 @@ async function run() {
       }
     });
 
-    // 2. Endpoint to get a specific idea (for details page)
+    // 2. Endpoint to get a specific idea
     app.get("/ideas/:id", async (req, res) => {
       try {
         const id = req.params.id;
