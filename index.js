@@ -21,7 +21,6 @@ const client = new MongoClient(uri, {
 });
 
 // JWT
-// আপডেটেড ভেরিফাই মিডলওয়্যার (BetterAuth ফ্রেন্ডলি)
 const verifyJWT = (req, res, next) => {
   const authHeader = req.headers.authorization;
 
@@ -33,12 +32,10 @@ const verifyJWT = (req, res, next) => {
 
   const token = authHeader.split(" ")[1];
 
-  // BetterAuth-এর টোকেনটি সঠিকভাবে এসেছে কিনা তা চেক করা
   if (!token || token === "undefined") {
     return res.status(403).send({ message: "Forbidden access: Invalid token" });
   }
 
-  // টোকেন ঠিক থাকলে রিকোয়েস্ট পাস করে দাও
   next();
 };
 
@@ -105,7 +102,7 @@ async function run() {
     });
 
     // 3. Endpoint for creating new ideas
-    app.post("/ideas", verifyJWT, async (req, res) => {
+    app.post("/ideas", async (req, res) => {
       try {
         const ideasData = req.body;
 
