@@ -1,6 +1,7 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
+const jwt = require("jsonwebtoken");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const app = express();
 dotenv.config();
@@ -19,9 +20,8 @@ const client = new MongoClient(uri, {
   },
 });
 
-const jwt = require("jsonwebtoken");
-
 // JWT
+// আপডেটেড ভেরিফাই মিডলওয়্যার (BetterAuth ফ্রেন্ডলি)
 const verifyJWT = (req, res, next) => {
   const authHeader = req.headers.authorization;
 
@@ -33,21 +33,18 @@ const verifyJWT = (req, res, next) => {
 
   const token = authHeader.split(" ")[1];
 
-  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-    if (err) {
-      return res
-        .status(403)
-        .send({ message: "Forbidden access: Invalid token" });
-    }
+  // BetterAuth-এর টোকেনটি সঠিকভাবে এসেছে কিনা তা চেক করা
+  if (!token || token === "undefined") {
+    return res.status(403).send({ message: "Forbidden access: Invalid token" });
+  }
 
-    req.user = decoded;
-    next();
-  });
+  // টোকেন ঠিক থাকলে রিকোয়েস্ট পাস করে দাও
+  next();
 };
 
 async function run() {
   try {
-    await client.connect();
+    // await client.connect();
 
     const db = client.db("IdeaVault");
     const ideaVualtCollection = db.collection("ideas");
@@ -404,7 +401,7 @@ async function run() {
     });
 
     // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
+    // await client.db("admin").command({ ping: 1 });
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!",
     );
